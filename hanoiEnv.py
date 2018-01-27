@@ -19,7 +19,7 @@ class HanoiEnv:
         dest_pile = [i for i in range(3) if self.curState[i] == action[1]]
 
         # check if valid action
-        if len(src_pile) == 0 or src_pile[0] > dest_pile[0]:
+        if (not src_pile) or (dest_pile and src_pile[0] > dest_pile[0]):
             return self.curState, -100, False
         
         # results
