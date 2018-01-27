@@ -28,6 +28,7 @@ class HanoiEnv:
         else:
             # actual step
             self.curState[src_pile[0]] = action[1]
+            self.stepsDone += 1
 
             # check for end of episode
             if self.__getPile__(2) == list(range(3)):
