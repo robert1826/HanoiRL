@@ -18,21 +18,21 @@ class HanoiEnv:
         src_pile = self.__getPile__(action[0])
         dest_pile = self.__getPile__(action[1])
 
-        # check if valid action
-        if (not src_pile) or (dest_pile and src_pile[0] > dest_pile[0]):
-            return self.curState, -(10 ** 4), False
-        
         # results
-        reward = 0
+        reward = 0 # should be -1 if we want to solve in "min" no. of steps
         done = False
 
-        # actual step
-        self.curState[src_pile[0]] = action[1]
+        # check if invalid action
+        if (not src_pile) or (dest_pile and src_pile[0] > dest_pile[0]):
+            reward, done = -(10 ** 4), False
+        else:
+            # actual step
+            self.curState[src_pile[0]] = action[1]
 
-        # check for end of episode
-        if self.__getPile__(2) == list(range(3)):
-            reward = 100
-            done = True
+            # check for end of episode
+            if self.__getPile__(2) == list(range(3)):
+                reward = 100
+                done = True
 
         return self.curState, reward, done
     
