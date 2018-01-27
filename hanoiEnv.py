@@ -15,8 +15,8 @@ class HanoiEnv:
         # only one of the above could be non-null
 
         action = action_tuple if action_tuple else self.action_space[action_tuple]
-        src_pile = [i for i in range(3) if self.curState[i] == action[0]]
-        dest_pile = [i for i in range(3) if self.curState[i] == action[1]]
+        src_pile = self.__getPile__(action[0])
+        dest_pile = self.__getPile__(action[1])
 
         # check if valid action
         if (not src_pile) or (dest_pile and src_pile[0] > dest_pile[0]):
@@ -30,12 +30,14 @@ class HanoiEnv:
         self.curState[src_pile[0]] = action[1]
 
         # check for end of episode
-        new_dest_pile = [i for i in range(3) if self.curState[i] == action[1]]
-        if new_dest_pile == list(range(3)):
+        if self.__getPile__(2) == list(range(3)):
             done = True
 
         return self.curState, reward, done
     
+    def __getPile__(self, ind):
+        return [i for i in range(3) if self.curState[i] == ind]
+
     def decodeState(self, s):
         res = [[], [], []]
         for i in range(3):
