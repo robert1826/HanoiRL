@@ -1,6 +1,8 @@
 from itertools import permutations
 
 class HanoiEnv:
+    NStepsLimit = 1000
+    
     def __init__(self):
         self.reset()
 
@@ -31,8 +33,8 @@ class HanoiEnv:
             self.stepsDone += 1
 
             # check for end of episode
-            if self.__getPile__(2) == list(range(3)):
-                reward = 100
+            if ( self.__getPile__(2) == list(range(3)) ) or self.stepsDone > HanoiEnv.NStepsLimit:
+                reward = -100 if self.stepsDone > HanoiEnv.NStepsLimit else 100
                 done = True
 
         return self.curState, reward, done
