@@ -20,7 +20,7 @@ class HanoiEnv:
 
         # check if valid action
         if (not src_pile) or (dest_pile and src_pile[0] > dest_pile[0]):
-            return self.curState, -100, False
+            return self.curState, -(10 ** 4), False
         
         # results
         reward = 0
@@ -31,6 +31,7 @@ class HanoiEnv:
 
         # check for end of episode
         if self.__getPile__(2) == list(range(3)):
+            reward = 100
             done = True
 
         return self.curState, reward, done
