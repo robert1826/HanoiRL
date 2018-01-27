@@ -1,6 +1,13 @@
+from itertools import permutations
+
 class HanoiEnv:
     def __init__(self):
-        self.state = [0, 0, 0]
+        self.reset()
+
+    def reset(self):
+        self.curState = [0, 0, 0]
+        self.action_space = list(permutations(range(3), 2))
+        self.stepsDone = 0
     
     def decodeState(self, s):
         res = [[], [], []]
