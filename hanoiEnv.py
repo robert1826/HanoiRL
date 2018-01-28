@@ -16,6 +16,8 @@ class HanoiEnv:
         # action_int is an int which is the index of the action in self.action_space
         # only one of the above could be non-null
 
+        self.stepsDone += 1
+        
         action = action_tuple if action_tuple else self.action_space[action_tuple]
         src_pile = self.__getPile__(action[0])
         dest_pile = self.__getPile__(action[1])
@@ -32,7 +34,6 @@ class HanoiEnv:
         else:
             # actual step
             self.curState[src_pile[0]] = action[1]
-            self.stepsDone += 1
 
             # check for end of episode
             if self.__getPile__(2) == list(range(3)):
