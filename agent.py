@@ -17,7 +17,10 @@ def genSession(env, agent, stateEnc, verbose=False):
     totalReward = 0
     
     while 1:
-        a = agent.predict(stateEnc.transform([s]))[0]
+        a = stateEnc.transform([s])
+        a = agent.predict_proba(a).reshape(-1)
+        a = np.random.choice(len(env.action_space), p=a)
+
         if verbose:
             print('predicted', a)
             
@@ -54,26 +57,26 @@ def oneHotEncodeActions(actions, nFeatures):
     # return b
 
 if __name__ == '__main__':
-    BatchSize = 100
+    BatchSize = 50
     percentile = 70 #fit on top 30% (30 best samples)
     NEpisodes = 100
 
-    dummyStates = [[0, 0, 0], [0, 1, 2], [2, 1, 0]]
-    dummyActions = [(0, 1), (2, 1), (0, 2)]
-
     # init env
     env = HanoiEnv()
+
+    dummyStates = [[0, 0, 0], [0, 1, 2], [2, 1, 0]] * 2
+    dummyActions = env.action_space
 
     # init stateEnc
     stateEnc = OneHotEncoder(n_values=3, dtype=type(1), sparse=False)
     stateEnc.fit(dummyStates)
 
     # # init model
-    agent = MLPClassifier(max_iter=1)
+    agent = MLPClassifier(max_iter=1, warm_start=True)
     x = stateEnc.transform(dummyStates)
     y = oneHotEncodeActions(dummyActions, len(env.action_space))
     agent.fit(x, y)
-
+    
     for i in range(NEpisodes):
         sessions = [genSession(env, agent, stateEnc) for _ in range(BatchSize)]
 
@@ -83,6 +86,10 @@ if __name__ == '__main__':
         threshold = np.percentile(batch_rewards, percentile)
         elite_states = np.concatenate(batch_states[batch_rewards >= threshold])
         elite_actions = np.concatenate(batch_actions[batch_rewards >= threshold])
+
+        # convert elite_action back to a list of tuples 
+        elite_actions = elite_actions.tolist()
+        elite_actions = [tuple(i) for i in elite_actions]
 
         agent.fit(stateEnc.transform(elite_states), oneHotEncodeActions(elite_actions, len(env.action_space)))
         
