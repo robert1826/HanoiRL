@@ -45,16 +45,7 @@ def genSession(env, agent, stateEnc, verbose=False):
 
 def oneHotEncodeActions(actions, nFeatures):
     a = [env.action_space.index(i) for i in actions]
-    # return np.eye(nFeatures)[a]
     return a
-
-    ##### alternate implementation
-    
-    # a = [env.action_space.index(i) for i in actions]
-    # a = np.array(a)
-    # b = np.zeros((len(a), nFeatures))
-    # b[np.arange(len(a)), a] = 1
-    # return b
 
 if __name__ == '__main__':
     BatchSize = 50
