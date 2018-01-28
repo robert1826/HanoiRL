@@ -3,11 +3,14 @@ import random
 import numpy as np
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import OneHotEncoder, label_binarize
+from multiprocessing import Pool
 
 random.seed(42)
 np.random.seed(31)
 
-def genSession(env, agent, stateEnc, verbose=False):
+def genSession(args, verbose=False):
+    env, agent, stateEnc = args
+
     env.reset()
     s = env.curState
 
@@ -69,20 +72,21 @@ if __name__ == '__main__':
     agent.fit(x, y)
     
     for i in range(NEpisodes):
-        sessions = [genSession(env, agent, stateEnc) for _ in range(BatchSize)]
+        with Pool() as pool:
+            sessions = pool.map(genSession, [(env, agent, stateEnc)] * BatchSize)
 
-        batch_states, batch_actions, batch_rewards = map(np.array, zip(*sessions))
+            batch_states, batch_actions, batch_rewards = map(np.array, zip(*sessions))
 
-        # pick elite sessions
-        threshold = np.percentile(batch_rewards, percentile)
-        elite_states = np.concatenate(batch_states[batch_rewards >= threshold])
-        elite_actions = np.concatenate(batch_actions[batch_rewards >= threshold])
+            # pick elite sessions
+            threshold = np.percentile(batch_rewards, percentile)
+            elite_states = np.concatenate(batch_states[batch_rewards >= threshold])
+            elite_actions = np.concatenate(batch_actions[batch_rewards >= threshold])
 
-        # convert elite_action back to a list of tuples 
-        elite_actions = elite_actions.tolist()
-        elite_actions = [tuple(i) for i in elite_actions]
+            # convert elite_action back to a list of tuples 
+            elite_actions = elite_actions.tolist()
+            elite_actions = [tuple(i) for i in elite_actions]
 
-        agent.fit(stateEnc.transform(elite_states), oneHotEncodeActions(elite_actions, len(env.action_space)))
-        
-        #report progress
-        print("epoch %i \tmean reward=%.2f\tthreshold=%.2f"%(i, batch_rewards.mean(), threshold))
+            agent.fit(stateEnc.transform(elite_states), oneHotEncodeActions(elite_actions, len(env.action_space)))
+            
+            #report progress
+            print("epoch %i \tmean reward=%.2f\tthreshold=%.2f"%(i, batch_rewards.mean(), threshold))
