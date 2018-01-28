@@ -24,8 +24,10 @@ class HanoiEnv:
         reward = 0 # should be -1 if we want to solve in "min" no. of steps
         done = False
 
+        if self.stepsDone > HanoiEnv.NStepsLimit:
+            reward, done = -100, True
         # check if invalid action
-        if (not src_pile) or (dest_pile and src_pile[0] > dest_pile[0]):
+        elif (not src_pile) or (dest_pile and src_pile[0] > dest_pile[0]):
             reward, done = -(10 ** 4), False
         else:
             # actual step
@@ -33,8 +35,8 @@ class HanoiEnv:
             self.stepsDone += 1
 
             # check for end of episode
-            if ( self.__getPile__(2) == list(range(3)) ) or self.stepsDone > HanoiEnv.NStepsLimit:
-                reward = -100 if self.stepsDone > HanoiEnv.NStepsLimit else 100
+            if self.__getPile__(2) == list(range(3)):
+                reward = 100
                 done = True
 
         return self.curState, reward, done
